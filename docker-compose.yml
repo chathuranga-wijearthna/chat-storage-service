@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env.dev
+    environment:
+      POSTGRES_DB: ${DB_NAME:-chat_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./
+    env_file:
+      - .env.dev
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8082:${SERVER_PORT:-8082}
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
