@@ -1,5 +1,6 @@
 package com.assignment.chatstorage.config;
 
+import com.assignment.chatstorage.constants.HeaderConstants;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -28,7 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
         name = "apiKey",
         type = SecuritySchemeType.APIKEY,
         in = SecuritySchemeIn.HEADER,
-        paramName = "X-API-KEY"
+        paramName = HeaderConstants.API_KEY
 )
 public class WebConfig implements WebMvcConfigurer {
 

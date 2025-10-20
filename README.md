@@ -58,3 +58,32 @@ How to use:
 4. Use "Create chat session" then "Add message to session"; the collection will capture `sessionId` for you.
 
 Requests included: create/list/rename/favorite/delete session, add/list messages, and health.
+
+## Rate limiting (Bucket4j)
+
+This service enforces rate limiting using Bucket4j at the servlet filter level. By default, limits are applied per API key (header `X-API-KEY`) and fall back to client IP if the header is absent.
+
+- Filter: `RateLimitFilter` (ordered to run after `ApiKeyFilter`)
+- Headers returned on every request (when enabled):
+  - `X-RateLimit-Limit`: total allowed requests in the current window
+  - `X-RateLimit-Remaining`: remaining requests in the current window
+  - `Retry-After`: included when limited (seconds until next token)
+- Error on limit exceeded: HTTP 429 with body `{ "code": "ERR_CS_RATE_01", "message": "Too many requests" }`
+
+### Configuration
+
+Configure via `application.yml` under the `ratelimit` prefix:
+
+```
+ratelimit:
+  enabled: true               # turn rate limiting on/off
+  capacity: 60                # max requests in the window
+  refillTokens: 60            # tokens added per window
+  refillPeriodSeconds: 60     # window length in seconds
+  perApiKey: true             # use X-API-KEY as the limiter key; else use client IP
+  includeHeaders: true        # add X-RateLimit-* headers to responses
+  skipPaths:                  # paths not subject to rate limiting
+    - /actuator/health
+    - /v3/api-docs
+    - /swagger-ui
+```

@@ -32,3 +32,16 @@ management:
     health:
       probes:
         enabled: true
+
+# Rate limiting defaults
+ratelimit:
+  enabled: true
+  capacity: 60            # max requests in window
+  refillTokens: 60        # tokens added per window
+  refillPeriodSeconds: 60 # window length in seconds
+  perApiKey: true         # rate limit by X-API-KEY (fallback to IP)
+  includeHeaders: true
+  skipPaths:
+    - /actuator/health
+    - /v3/api-docs
+    - /swagger-ui

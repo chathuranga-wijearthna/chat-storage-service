@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.assignment.chatstorage.constants.HeaderConstants;
 import com.assignment.chatstorage.dto.Dtos;
 import com.assignment.chatstorage.dto.Dtos.MessageView;
 import com.assignment.chatstorage.dto.Dtos.SessionView;
@@ -66,7 +67,7 @@ class ChatControllerTest {
         given(chatService.createSession(any())).willReturn(new SessionView(null, "u1", "t", false, null, null));
 
         mockMvc.perform(post("/api/v1/session")
-                        .header("X-API-KEY", API_KEY)
+                        .header(HeaderConstants.API_KEY, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
@@ -78,7 +79,7 @@ class ChatControllerTest {
     void list_ok() throws Exception {
         given(chatService.listSessions("u", null)).willReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/session").header("X-API-KEY", API_KEY).param("userId", "u"))
+        mockMvc.perform(get("/api/v1/session").header(HeaderConstants.API_KEY, API_KEY).param("userId", "u"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("[]"));
     }
@@ -89,7 +90,7 @@ class ChatControllerTest {
         given(chatService.rename(eq(ID), any())).willReturn(new SessionView(null, "u", "n", false, null, null));
 
         mockMvc.perform(patch("/api/v1/session/{id}/rename", ID.toString())
-                        .header("X-API-KEY", API_KEY)
+                        .header(HeaderConstants.API_KEY, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"n\"}"))
                 .andExpect(status().isOk())
@@ -102,7 +103,7 @@ class ChatControllerTest {
         given(chatService.favorite(eq(ID), any())).willReturn(new SessionView(null, "u", "t", true, null, null));
 
         mockMvc.perform(patch("/api/v1/session/{id}/favorite", ID.toString())
-                        .header("X-API-KEY", API_KEY)
+                        .header(HeaderConstants.API_KEY, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isFavorite\":true}"))
                 .andExpect(status().isOk())
@@ -112,7 +113,7 @@ class ChatControllerTest {
     @Test
     @DisplayName("delete returns 204")
     void delete_ok() throws Exception {
-        mockMvc.perform(delete("/api/v1/session/{id}", ID.toString()).header("X-API-KEY", API_KEY))
+        mockMvc.perform(delete("/api/v1/session/{id}", ID.toString()).header(HeaderConstants.API_KEY, API_KEY))
                 .andExpect(status().isNoContent());
         Mockito.verify(chatService).deleteSession(ID);
     }
@@ -123,7 +124,7 @@ class ChatControllerTest {
         given(chatService.addMessage(eq(ID), any())).willReturn(new MessageView(null, null, "user", "c", null, null));
 
         mockMvc.perform(post("/api/v1/session/{id}/messages", ID.toString())
-                        .header("X-API-KEY", API_KEY)
+                        .header(HeaderConstants.API_KEY, API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"createdBy\":\"user\",\"content\":\"c\"}"))
                 .andExpect(status().isOk())
@@ -144,7 +145,7 @@ class ChatControllerTest {
         given(chatService.listMessages(eq(ID), eq(0), eq(3))).willReturn(page);
 
         mockMvc.perform(get("/api/v1/session/{id}/messages", ID.toString())
-                        .header("X-API-KEY", API_KEY)
+                        .header(HeaderConstants.API_KEY, API_KEY)
                         .param("page", "0")
                         .param("size", "3"))
                 .andExpect(status().isOk())
@@ -157,4 +158,3 @@ class ChatControllerTest {
                 .andExpect(jsonPath("$.content[1].createdBy").value("user"));
     }
 }
-
