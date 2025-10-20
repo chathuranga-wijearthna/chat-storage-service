@@ -125,9 +125,9 @@ class ChatControllerTest {
         mockMvc.perform(post("/api/v1/session/{id}/messages", ID.toString())
                         .header("X-API-KEY", API_KEY)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"sender\":\"user\",\"content\":\"c\"}"))
+                        .content("{\"createdBy\":\"user\",\"content\":\"c\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sender").value("user"));
+                .andExpect(jsonPath("$.createdBy").value("user"));
     }
 
     @Test
@@ -153,8 +153,8 @@ class ChatControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].sender").value("assistant"))
-                .andExpect(jsonPath("$.content[1].sender").value("user"));
+                .andExpect(jsonPath("$.content[0].createdBy").value("assistant"))
+                .andExpect(jsonPath("$.content[1].createdBy").value("user"));
     }
 }
 

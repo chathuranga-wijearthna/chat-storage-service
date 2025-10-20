@@ -145,7 +145,7 @@ class ChatServiceImplTest {
 
         var view = service.addMessage(SID, req);
 
-        assertThat(view.sender()).isEqualTo("user");
+        assertThat(view.createdBy()).isEqualTo("user");
         assertThat(view.content()).isEqualTo("hello");
         verify(messageRepository).save(any(ChatMessage.class));
     }
@@ -155,11 +155,11 @@ class ChatServiceImplTest {
     void listMessages_ok() {
         
         var m1 = new ChatMessage();
-        m1.setSender("user");
+        m1.setCreatedBy("user");
         m1.setContent("a");
         
         var m2 = new ChatMessage();
-        m2.setSender("assistant");
+        m2.setCreatedBy("assistant");
         m2.setContent("b");
         
         var sess = new ChatSession();

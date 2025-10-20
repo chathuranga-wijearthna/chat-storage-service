@@ -15,7 +15,10 @@ spring:
     open-in-view: false
 
 server:
-  port: ${SERVER_PORT:8082}
+  port: 8082
+
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
 
 logging:
   level:

@@ -26,16 +26,16 @@ public class ChatMapper {
     public static ChatMessage toChatEntity(Dtos.MessageCreate request, ChatSession session) {
 
         ChatMessage message = new ChatMessage();
+        message.setCreatedBy(request.createdBy());
         message.setSession(session);
-        message.setSender(request.sender());
         message.setContent(request.content());
-        message.setContextJson(request.context());
+        message.setContext(request.context());
 
         return message;
     }
 
     public static MessageView toMessageView(ChatMessage message) {
-        return new MessageView(message.getId(), message.getSession().getId(), message.getSender(), message.getContent(), message.getContextJson(),
+        return new MessageView(message.getId(), message.getSession().getId(), message.getCreatedBy(), message.getContent(), message.getContext(),
                 message.getCreatedAt());
     }
 

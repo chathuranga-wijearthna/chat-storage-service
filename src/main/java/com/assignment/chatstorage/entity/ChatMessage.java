@@ -26,14 +26,13 @@ public class ChatMessage extends AuditEntity {
     @JoinColumn(name = "session_id", nullable = false)
     private ChatSession session;
 
-    @Column(nullable = false, length = 32)
-    private String sender;
-
     @Column(nullable = false, columnDefinition = "text")
     private String content;
 
-    @Column(columnDefinition = "jsonb")
-    private String contextJson;
+    private String context;
+
+    @Column(updatable = false)
+    String createdBy;
 
     @PrePersist
     public void prePersist() {

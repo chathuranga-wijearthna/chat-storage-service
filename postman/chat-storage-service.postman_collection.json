@@ -1,0 +1,263 @@
+{
+  "info": {
+    "name": "Chat Storage Service",
+    "description": "Postman collection for the RAG Chat Storage API. Endpoints derived from ChatController and DTOs. Base URL defaults to http://localhost:8082 as configured in application.yml.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8082", "type": "string" },
+    { "key": "apiKey", "value": "change-me-please", "type": "string" },
+    { "key": "userId", "value": "demo-user-1", "type": "string" },
+    { "key": "sessionId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Accept", "value": "application/json" } ],
+        "url": {
+          "raw": "{{baseUrl}}/actuator/health",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "actuator", "health" ]
+        },
+        "description": "Spring Boot actuator health endpoint (no API key required)."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create chat session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-KEY", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"title\": \"My first chat\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session" ]
+        },
+        "description": "Create chat session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.expect(json).to.have.property('id');",
+              "pm.collectionVariables.set('sessionId', json.id);",
+              "pm.test('Session ID captured', function () { pm.expect(pm.collectionVariables.get('sessionId')).to.be.a('string').that.is.not.empty; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Add message to session",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-API-KEY", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"createdBy\": \"user\",\n  \"content\": \"Hello there\",\n  \"context\": \"optional context\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session/{{sessionId}}/messages",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session", "{{sessionId}}", "messages" ]
+        },
+        "description": "Add message to a session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.expect(json).to.have.property('sessionId');",
+              "pm.test('Message belongs to session', function () { pm.expect(json.sessionId).to.eql(pm.collectionVariables.get('sessionId')); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List messages",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "X-API-KEY", "value": "{{apiKey}}" }, { "key": "Accept", "value": "application/json" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session/{{sessionId}}/messages?page=0&size=20",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session", "{{sessionId}}", "messages" ],
+          "query": [ { "key": "page", "value": "0" }, { "key": "size", "value": "20" } ]
+        },
+        "description": "List messages of a session (paginated)"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.expect(json).to.have.property('content');",
+              "pm.expect(json).to.have.property('page');",
+              "pm.expect(json).to.have.property('size');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rename session",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "X-API-KEY", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Renamed chat session\"\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session/{{sessionId}}/rename",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session", "{{sessionId}}", "rename" ]
+        },
+        "description": "Rename chat session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.expect(json).to.have.property('title');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mark/unmark favorite",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "X-API-KEY", "value": "{{apiKey}}" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"isFavorite\": true\n}" },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session/{{sessionId}}/favorite",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session", "{{sessionId}}", "favorite" ]
+        },
+        "description": "Mark or unmark a session as favorite"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [ "pm.test('Status is 200', function () { pm.response.to.have.status(200); });", "var json = pm.response.json();", "pm.expect(json).to.have.property('isFavorite');" ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List sessions",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "X-API-KEY", "value": "{{apiKey}}" }, { "key": "Accept", "value": "application/json" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session?userId={{userId}}",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session" ],
+          "query": [ { "key": "userId", "value": "{{userId}}" } ]
+        },
+        "description": "List chat sessions for a user"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "if (Array.isArray(json) && json.length > 0) { pm.collectionVariables.set('sessionId', json[0].id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List favorite sessions",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "X-API-KEY", "value": "{{apiKey}}" }, { "key": "Accept", "value": "application/json" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session?userId={{userId}}&favorite=true",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session" ],
+          "query": [ { "key": "userId", "value": "{{userId}}" }, { "key": "favorite", "value": "true" } ]
+        },
+        "description": "List favorite sessions for a user"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": [ "pm.test('Status is 200', function () { pm.response.to.have.status(200); });" ] }
+        }
+      ]
+    },
+    {
+      "name": "Delete session",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "X-API-KEY", "value": "{{apiKey}}" }, { "key": "Accept", "value": "*/*" } ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/session/{{sessionId}}",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "api", "v1", "session", "{{sessionId}}" ]
+        },
+        "description": "Soft delete chat session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": { "type": "text/javascript", "exec": [ "pm.test('Status is 204', function () { pm.response.to.have.status(204); });", "pm.collectionVariables.unset('sessionId');" ] }
+        }
+      ]
+    }
+  ]
+}

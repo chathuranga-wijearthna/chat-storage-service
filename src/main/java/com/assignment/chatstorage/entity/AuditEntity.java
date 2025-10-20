@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,19 +24,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 public class AuditEntity implements Serializable {
 
-    @CreatedBy
-    @Column(updatable = false)
-    String createdBy;
-
     @CreatedDate
     @Column(updatable = false)
-    OffsetDateTime createdAt;
-
-    @LastModifiedBy
-    String updatedBy;
+    LocalDateTime createdAt;
 
     @LastModifiedDate
-    OffsetDateTime updatedAt;
+    LocalDateTime updatedAt;
 
     @Column(columnDefinition = "boolean default false")
     Boolean isActive = true;

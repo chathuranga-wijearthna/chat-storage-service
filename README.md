@@ -10,7 +10,6 @@ A small Spring Boot service to store chat sessions and messages.
 
 ## Environment Variables
 The service reads configuration from environment variables (with sane defaults):
-- `SERVER_PORT` (default: `8081`)
 - `API_KEY` (default: `change-me-please`)
 - `DB_HOST` (default: `localhost`)
 - `DB_PORT` (default: `5432`)
@@ -22,7 +21,6 @@ The service reads configuration from environment variables (with sane defaults):
 ## Run with Docker Compose
 1. Create a `.env.dev` file in the project root (values can be changed as needed):
    ```env
-   SERVER_PORT=8081
    API_KEY=change-me-please
    DB_NAME=chat_db
    DB_USER=postgres
@@ -34,22 +32,29 @@ The service reads configuration from environment variables (with sane defaults):
    ```bash
    docker compose up --build
    ```
-3. App will be available at `http://localhost:8081`.
+3. App will be available at `http://localhost:8082`.
 
 
 ## API and Docs
 - Base path: `/api/v1/session`
 - API Key header: `X-API-KEY: <your key>`
   - API key is required for API endpoints. It is NOT required for: `/actuator/health`, `/v3/api-docs/**`, `/swagger-ui/**`.
-- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
-- Health: `http://localhost:8081/actuator/health`
+- Swagger UI: `http://localhost:8082/swagger-ui/index.html`
+- Health: `http://localhost:8082/actuator/health`
 
 
 ## Postman collection
-- File: `postman/Chat Storage.postman_collection.json`
-- Import into Postman, then set collection Variables:
-  - `baseUrl`: `http://localhost:8081`
-  - `apiKey`: your API key
-  - `userId`: your test user id
-  - `sessionId`: leave empty initially; set after creating a session
-- Requests included: create/list/rename/favorite/delete session, add/list messages.
+- Collection: `postman/chat-storage-service.postman_collection.json`
+- Environment (optional): `postman/chat-storage-service.postman_environment.json`
+
+How to use:
+1. Import both files into Postman (Collection and Environment).
+2. Select the "Chat Storage Service Local" environment or set these collection variables:
+   - `baseUrl`: `http://localhost:8082` (default per `src/main/resources/application.yml`)
+   - `apiKey`: your API key (default `change-me-please`)
+   - `userId`: your test user id (e.g., `demo-user-1`)
+   - `sessionId`: leave empty; it will be captured after creating a session.
+3. Run the Health request first to verify the service is up.
+4. Use "Create chat session" then "Add message to session"; the collection will capture `sessionId` for you.
+
+Requests included: create/list/rename/favorite/delete session, add/list messages, and health.
